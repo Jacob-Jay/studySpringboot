@@ -1,0 +1,26 @@
+server:
+  port: 8083
+
+#person:
+#  name: jq
+#  age: 10
+#  sex: sd
+#yaml-person:
+#  name: jq
+#  age: 10
+#  sex: nv
+
+
+#spring:
+#  autoconfigure:
+#    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+
+
+#spring:
+#  banner:
+#    location: classpath:/banner1/banner.txt
+#    image:
+#      location: classpath:/banner.png
+#spring:
+#  main:
+#    banner-mode: console

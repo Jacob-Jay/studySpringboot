@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2019/8/8 23:37
  */
 @RestController
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
 public class Example {
     @RequestMapping("/")
     String home() {
