@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 //@ConfigurationProperties("yaml-person")
 @ConfigurationProperties("person")
 @Component
-@PropertySource(value = "classpath:person.properties")
+//@PropertySource(value = "classpath:person.properties")
 public class YamlPerson {
 //    @Value("${person.name}")
     private String name;
@@ -22,8 +22,19 @@ public class YamlPerson {
 //    @Value("${person.sex}")
     private String sex;
 
+//    @Value("$ {random.int[1024,65536]}")
+    private int num2;
 
 
+//    @Value("$ {random.int(10)}")
+    private int num;
+
+    public void setNum(int num) {
+        this.num = num;
+    }
+    public void setNum2(int num2) {
+        this.num2 = num2;
+    }
     public void setName(String name) {
         this.name = name;
     }

@@ -271,7 +271,12 @@
   - @PropertySource指定的配置文件
   - 启动时通过代码设置
 
-  
+- 随机值
+
+  - ```properties
+    person.num = ${random.int(9,10)}			//均表示范围内的整数随机值
+    person.num2 = ${random.int[1024,65536]}
+    ```
 
 # 重要注解
 
