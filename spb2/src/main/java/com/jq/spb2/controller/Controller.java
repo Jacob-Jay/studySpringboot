@@ -1,4 +1,4 @@
-package com.jq.spb2;
+package com.jq.spb2.controller;
 
 import com.jq.spb2.profile.RedisProperties;
 import org.springframework.beans.factory.annotation.Autowired;
