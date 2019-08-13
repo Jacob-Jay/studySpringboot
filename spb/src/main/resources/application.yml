@@ -1,5 +1,9 @@
 server:
   port: 8083
+spring:
+  config:
+    name: custom
+
 
 #person:
 #  name: jq
@@ -9,6 +13,13 @@ server:
 #  name: jq
 #  age: 10
 #  sex: nv
+app:
+  id: 111
+  na-m_e: yml222
+  desc: ${app.name}描述
+  titles:
+    - yml1
+    - yml2
 
 
 #spring:
