@@ -17,7 +17,7 @@ public class Controller {
     @Autowired(required = false)
     private RedisProperties redisProperties;
 
-    @RequestMapping
+    @RequestMapping()
     @ResponseBody
     public String test() {
         return "ok";

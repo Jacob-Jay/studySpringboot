@@ -2,8 +2,24 @@
 server:
   port: 8083
 spring:
-  profiles:
-    include:
+  mvc:
+#    contentnegotiation:
+#      favor-path-extension: true
+#    pathmatch:
+#      use-suffix-pattern: true
+    static-path-pattern: /webjar/**
+#                      - /webjars/**
+  resources:
+    static-locations: classpath:/static/
+    chain:
+      strategy:
+        content:
+          paths:  /**
+          enabled: false
+  thymeleaf:
+    prefix: classpath:/templates/
+#  profiles:
+#    include:
 #      - redisDev
 #      - redisPro
 #      - redisTest

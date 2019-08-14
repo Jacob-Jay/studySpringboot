@@ -243,16 +243,7 @@
 
 ## 配置文件
 
-- 将配置文件赋予bean，需要为容器成员并有set方法
-
-  - @ConfigurationProperties("person") 
-  - @PropertySource(value = "classpath:person.properties")+@value
-  - @PropertySource(value = "classpath:person.properties")+@ConfigurationProperties("person") 
-    - ${}环境参数
-    - #{}spel表达式
-    - “xx”字面量
-  - ‘  \n ’原样输出即\n  
-  - “\n” 代表换行
+### 加载顺序
 
 - 优先级由高到低，高的覆盖低的
 
@@ -277,6 +268,235 @@
     person.num = ${random.int(9,10)}			//均表示范围内的整数随机值
     person.num2 = ${random.int[1024,65536]}
     ```
+  
+- application加载
+
+  - 没有指定位置就按优先级进行覆盖
+  - ![1565657877573](/1565657877573.png)
+    - 优先级 1>2>3>4即优先级高的覆盖优先级低的
+    - 1 为项目所在目录的config目录下 2 为项目所在目录直接下
+  - 指订了位置就只加载指定位置的配置文件，默认位置失效，可以通过环境参数配置文件的名称或者位置
+    - ![1565664083737](/1565664083737.png)
+
+  - 指定spring.config.additional-location环境变量添加额外的配置文件位置，优先级高于默认的
+
+### 语法
+
+- 将配置文件赋予bean，需要为容器成员并有set方法
+
+  - 无论yaml还是properties都忽略—  __  大小写
+    - 即  name=NAME=Na-m_e
+  - @ConfigurationProperties("person") 
+    - 不仅可以用在类上注入bean，也可以用在@bean的方法上
+  - @PropertySource(value = "classpath:person.properties")+@value
+  - @PropertySource(value = "classpath:person.properties")+@ConfigurationProperties("person") 
+
+- @EnableConfigurationProperties可以对使用的ConfigurationProperties注解类进行注入到容器，而不用使用component
+
+- @value注解
+
+  - ${}环境参数
+  - #{}spel表达式
+  - “xx”字面量
+
+- 配置文件是否转义
+
+  - ‘  \n ’原样输出即\n  
+  - “\n” 代表换行
+
+- 占位符
+
+  - app:
+      id: 111
+      name: yml
+      desc: ${app.name}描述  // 等价于yml描述
+
+- 集合或者数组
+
+  - ```yaml
+    app:
+      titles:
+        - yml1
+        - yml2
+    ```
+
+  - ```properties
+    app.titles[0] = title1
+    app.titles[1] = title2
+    ```
+
+- yml一个文件多部分
+
+- ```yaml
+  server:
+    port: 8083
+  spring:
+    profiles:
+  	active: dev
+  ---
+  spring:
+    profiles: dev						
+  server:
+    port: 8082
+  ---
+  spring:
+    profiles: pro
+  server:
+    port: 8084
+  ```
+
+- 类型转换
+
+  - @ConfigurationProperties
+
+    - 实现convert接口注册为bean，并使用ConfigurationPropertiesBinding修饰
+
+      - ```java
+        @ConfigurationPropertiesBinding
+        @Component
+        public class StringToDate implements Converter<String,Date> {
+            @Override
+            public Date convert(String source) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+                Date parse = null;
+                try {
+                    parse = simpleDateFormat.parse(source);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                return parse;
+            }
+        }
+        ```
+
+        
+
+    - 注册一个ConversionService
+
+      - ```java
+        @Bean
+            public ConversionService conversionService() {
+                ConversionServiceFactoryBean bean = new ConversionServiceFactoryBean();
+                Set<Converter> converters = new HashSet<>();
+                converters.add(new StringToDate());
+               // converters.add(new IntegerToDateConverter());
+                bean.setConverters(converters);
+                bean.afterPropertiesSet();
+                return bean.getObject();
+        ```
+
+    -  注册一个CustomEditorConfigurer
+
+      - ```java
+        public class StringToDateCustomEditorConfigurer extends PropertyEditorSupport
+               @Override
+            public void setAsText(String text) throws IllegalArgumentException {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+                Date parse = null;
+                try {
+                    parse = simpleDateFormat.parse(text);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                setValue(parse);
+            }
+        }
+        ```
+
+      - ```java
+        @Bean
+            public CustomEditorConfigurer customEditorConfigurer() {
+                CustomEditorConfigurer customEditorConfigurer = new CustomEditorConfigurer();
+                Map<Class<?>, Class<? extends PropertyEditor>> customEditors = new HashMap<>();
+                customEditors.put(Date.class, StringToDateCustomEditorConfigurer.class);
+                customEditorConfigurer.setCustomEditors(customEditors);
+                return  customEditorConfigurer;
+            }
+        ```
+
+  - @value
+
+    - 除了convert同上
+
+## profile
+
+使用
+
+- application.setAdditionalProfiles("redisPro");
+- spring.profiles.include  不会被覆盖
+
+来激活额外的配置文件，根据激活的文件注入不同的bean，列如生产数据库、开发数据库
+
+![1565699196542](/1565699196542.png)
+
+
+
+## log
+
+## 国际化
+
+## json
+
+## web开发？？？？？？？？
+
+- HttpMessageConverters
+
+  消息转换
+
+  HttpMessageConverter
+
+- JsonComponent
+
+- MessageCodesResolver
+
+- 静态内容 
+
+  - 默认位置优先级从高到底
+
+    /META-INF/resources	>	resources	>	static	>	public
+
+  - spring.mvc.static-path-pattern = /web/**  
+
+    - 只能填写一个
+    - 不能是/webjars/**  因为这是默认寻找jar引入静态资源的路径
+    - 对url进行重定向，如/web/index.html至/index.html在静态资源下去找，并且只有满足/web/**模式的url才会进行静态资源映射，也就是设置了直接访问/index.html会404
+
+  - spring.resources.static-locations
+
+    - 将覆盖默认的静态资源位置，到指定的目录寻找静态资源
+
+- webjar引入js
+
+  - maven添加依赖
+
+    - ```xml
+      <dependency>
+      			<groupId>org.webjars</groupId>
+      			<artifactId>jquery</artifactId>
+      			<version>3.3.1</version>
+      		</dependency>
+      ```
+
+  - ```
+    http://localhost:8083/webjars/jquery/3.3.1/jquery.js
+    ```
+
+    - /webjar开始的url都去 classpath:/META-INF/resources/下寻找
+
+### 路径匹配与内容协商？？？？？？
+
+- 禁止后缀匹配，如index.do 不能匹配待index
+- 模板
+  - 添加依赖
+  - 配置文件配置属性
+    - 缓存
+    - 编码
+    - 前后缀
+- 错误处理
+
+## 权限控制
+
+## 数据库
 
 # 重要注解
 
