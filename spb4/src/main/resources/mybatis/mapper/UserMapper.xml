@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jq.spb4.mapper.UserMapper">
+    <!--int insert(User user);-->
+<insert id="insert" parameterType="com.jq.spb4.pojo.User" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    INSERT INTO `user` ( `user_name`, `age`)values (#{userName},#{age});
+</insert>
+
+
+    <!--int del(int id);-->
+    <delete id="del">
+        delete from user  where id=#{id};
+    </delete>
+</mapper>

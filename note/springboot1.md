@@ -498,6 +498,30 @@
 
 ## 数据库
 
+```yaml
+spring:
+  datasource:
+     username: root
+     password: 123456
+     url: jdbc:mysql://127.0.0.1:3306/jdbc?serverTimezone=GMT
+     driver-class-name: com.mysql.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+#     schema:
+#        - classpath:schema_a.sql
+#     initialization-mode: always
+mybatis:
+  config-location: classpath:mybatis/Mybatis-conf.xml
+  mapper-locations: classpath:mybatis/mapper/*.xml
+#     initialSize: 10
+```
+
+
+
+默认使用HikariDataSource
+
 # 重要注解
 
 - @SpringBootApplication 
