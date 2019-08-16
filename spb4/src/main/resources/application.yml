@@ -1,8 +1,8 @@
 spring:
   datasource:
      username: root
-     password: 123456
-     url: jdbc:mysql://127.0.0.1:3306/jdbc?serverTimezone=GMT
+     password:
+     url: jdbc:mysql://127.0.0.1:3306/redis?serverTimezone=GMT
      driver-class-name: com.mysql.jdbc.Driver
   jpa:
     show-sql: true
@@ -14,4 +14,6 @@ spring:
 mybatis:
   config-location: classpath:mybatis/Mybatis-conf.xml
   mapper-locations: classpath:mybatis/mapper/*.xml
+server:
+  port: 8083
 #     initialSize: 10

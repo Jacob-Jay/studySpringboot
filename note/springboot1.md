@@ -496,7 +496,7 @@
 
 ## 权限控制
 
-## 数据库
+## 关系型数据库
 
 ```yaml
 spring:
@@ -518,9 +518,110 @@ mybatis:
 #     initialSize: 10
 ```
 
+- jdbc
 
+  - 只需要引入mysql与jdbc依赖即可
 
-默认使用HikariDataSource
+  - ```xml
+    <dependency>
+    			<groupId>mysql</groupId>
+    			<artifactId>mysql-connector-java</artifactId>
+    		<!--	<scope>runtime</scope>-->
+    		</dependency>
+    		<dependency>
+    			<groupId>org.springframework.boot</groupId>
+    			<artifactId>spring-boot-starter-jdbc</artifactId>
+    		</dependency>
+    ```
+
+  - boot会自动根据连接信息装配数据源并注入template
+
+- 数据源默认HikariDataSource，可以通过type指定但是不能装配属性
+
+  - 注册一个bean返回给定数据源并使用ConfigurationProperties自动注入属性
+
+  - ```java
+     @Bean
+        @ConfigurationProperties("spring.datasource")
+        public DataSource dataSource() {
+            return new DruidDataSource();
+        }
+    ```
+
+  - druid数据源监控的配置，暂时不懂
+
+  - ```java
+    //配置Druid的监控
+        //1、配置一个管理后台的Servlet
+        @Bean
+        public ServletRegistrationBean statViewServlet(){
+            ServletRegistrationBean bean = new ServletRegistrationBean(new StatViewServlet(), "/druid/*");
+            Map<String,String> initParams = new HashMap<>();
+    
+            initParams.put("loginUsername","admin");
+            initParams.put("loginPassword","123456");
+            initParams.put("allow","");//默认就是允许所有访问
+            initParams.put("deny","192.168.15.21");
+    
+            bean.setInitParameters(initParams);
+            return bean;
+        }
+    
+    
+        //2、配置一个web监控的filter
+        @Bean
+        public FilterRegistrationBean webStatFilter(){
+            FilterRegistrationBean bean = new FilterRegistrationBean();
+            bean.setFilter(new WebStatFilter());
+    
+            Map<String,String> initParams = new HashMap<>();
+            initParams.put("exclusions","*.js,*.css,/druid/*");
+    
+            bean.setInitParameters(initParams);
+    
+            bean.setUrlPatterns(Arrays.asList("/*"));
+    
+            return  bean;
+        }
+    ```
+
+- mybatis
+
+  - 只需要添加依赖
+
+  - ```xml
+    <dependency>
+    			<groupId>org.mybatis.spring.boot</groupId>
+    			<artifactId>mybatis-spring-boot-starter</artifactId>
+    			<version>1.3.2</version>
+    		</dependency>
+    ```
+
+  - 编写mapper接口，注意扫描mapper（注解版）
+
+  - 配置配置文件和mapper文件位置（xml版）可以共存
+
+- jpa
+
+  - 添加依赖
+
+  - 实体类使用注解映射到数据库表
+
+  - 接口实现
+
+    - ```java
+      @Repository
+      public interface UserJpa extends JpaRepository<User,Integer> {
+          
+      }
+      ```
+
+## nosql
+
+- redis
+- mongoDb
+- solr
+- elasticSearch
 
 # 重要注解
 
