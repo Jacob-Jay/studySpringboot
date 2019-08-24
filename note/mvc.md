@@ -1,0 +1,223 @@
+# servlet容器
+
+## servlet
+
+定义了服务器与java代码之间运行的规范，即通过url该怎么找到调用的类以及调用的方法
+
+通过web.xml映射
+
+### 生命周期
+
+constructor------init-------service------destroy
+
+默认第一次请求时才初始化并应用，知道服务器停止菜同内存中销毁
+
+如果设置了on-start-up 就在启动时就初始化
+
+### req与resp
+
+- 请求
+
+  - 请求头
+    - 区分方法
+    - url与uri
+  - 请求行
+  - 请求正文
+
+- 响应
+
+  
+
+## 启动顺序
+
+### servletContext
+
+创建servletContext读取contextParam作为参数
+
+### listener  
+
+不同特性的listener拥有不同的特性，参与session、request、context的生命周期，初始化顺序根据web。xml的声明顺序，也可以使用@webListener注解配置，但是顺序未知。
+
+- ServletContextListener   	在context初始化与销毁时做一些事
+- ServletContextAttributeListener
+- ServletRequestListener
+- ServletRequestAttributeListener
+- HttpSessionListener
+- HttpSessionAttributeListener
+- HttpSessionIdListener
+
+### filter   
+
+创建filter   对请求进行拦截  需要配置拦截规则  url？或者servletname
+
+使用@webFilter或者初始化容器时的getFilter()方法
+
+### servlet
+
+规定了运行在服务器中的java小程序的接口规范，只要按照规范实现就可以在服务器中运行
+
+- ```java
+   ServletRegistration.Dynamic own = servletContext.addServlet("own", new MyServlet());
+   own.addMapping("/own");      //往web容器中添加servlet并映射到/own中
+  ```
+
+- 
+
+# springmvc
+
+将所需的类放在spring容器中，往servlet容器注册一个分发的servlet，以及listener完成容器和所需资源的加载
+
+## 初始化
+
+通过SpringServletContainerInitializer的注解@HandlesTypes(WebApplicationInitializer.class)在类路径中查找对应的类及其子类（注意不能时接口或者抽象类，根据order对其进行排序，循环调用onStartup方法初始化）
+
+- 加载根容器并注册一个listener到container
+- 加载dispatcherServlet，配置mapping以及filter
+- 通过listener初始化根容器，ContextLoader
+- 通过servletinit方法实例化web容器
+- 配置各种resolver和handler
+  - ![1566369859907](initMvc)
+
+## 请求处理
+
+- ### filter过滤
+- ### processRequest
+  
+  - ##### 获取之前信息
+  - ##### doservice
+    
+    - request设置相关attribute
+    - dodispatch
+      1. 校验是否上传文件
+      2. 根据handlerMapping获取HandlerExecutionChain
+         
+         - ![1566379306597](/handlerExcuteChain)
+      3. 根据handler获取handlerAdaptor（ha.supports(handler)）
+      4. interceptore前置处理
+      5. adaptor.handle
+         - checkRequest(request);
+         - 获取视图（注意可以控制session的同步与否）
+           1. WebDataBinderFactory  （数据转换器工厂@initBInder）
+           2. ModelFactory（SessionAttributes，ModelAttribute）
+           3. 复制给ServletInvocableHandlerMethod，并设置参数返回值等处理器
+           4. 常见模型容器mavContainer并初始化模型赋值
+           5. ServletInvocableHandlerMethod.invokeAndHandle(webRequest, mavContainer);
+             - 获取返回值
+               - 获取参数（循环遍历参数使用匹配的argumentResolver获取）
+                 - 获取参数名称
+                 - 模型中是否存在，模型中不存在先从url中获取，没获取到再从request获取进行类型转换返回，若果还没获取到并且是无参构造通过构造器创建一个对象（ConstructorProperties）
+                 - 数据绑定
+               - 执行controller的方法
+             - 设置响应状态（ResponseStatus）
+             - 处理返回值
+               1. 返回值为null或者返回json等特殊需求直接返回
+               2. returnValueHandlers.handleReturnValue
+                  1. 遍历选择处理器
+                  2. 将响应写入response（messageConverters）
+           6. 获取视图
+              - 更新模型数据
+         - 是由需要缓存
+      6. 如果需要获取视图名称
+      7. interceptor后置处理
+      8. 视图渲染
+         1. 获取区域信息
+         2. viewResolver解析获得view
+      9. interceptor完成回调
+    - 异步操作
+  - #### 还原信息
+
+## 知识点
+
+### HttpServletBean
+
+获取web.xml中的init参数
+
+### FrameworkServlet
+
+整合springcontext与servlet以及处理请求发布相应事件
+
+- 容器配置文件
+- 容器
+- 发布事件
+- 扩展配置容器
+- 放置请求和local信息至threadLocal
+
+### DispatcherServlet
+
+将极大组件组合起来调度完成整个请求的处理
+
+1. 配置handlerMapping将请求映射到handler，可以在web容器中配置
+2. 配置handlerAdaptor使用habdler处理请求，配置在app容器中？？？
+3. 配置exceptionResolver使用habdler处理请求，配置在app容器中？？？
+4. 配置viewResolver将视图名转换为视图，配置在app容器中？？？
+5. 上传文件
+6. 国际化
+7. 主题
+
+
+
+### interceptor
+
+WebMvcConfigurationSupport注入handlerMapping时注入的
+
+```java
+@EnableWebMvc
+@Configuration
+@ComponentScan("com.jq.controller")
+public class Webconfig implements WebMvcConfigurer{   
+    @Override   
+    public void addInterceptors(InterceptorRegistry registry) {       		 			           registry.addInterceptor(new Myinterceptor1());   
+     }
+}
+//通过重写该方法添加interceptor，因为往容器中注入handlerMapping时会调用该方法设置属性
+//对于返回json的postHandle无法修改response因为response已经写出去了
+//前置处理可以设置响应的状态码
+```
+
+### HandlerExceptionResolver
+
+```java
+    @Bean
+	public HandlerExceptionResolver handlerExceptionResolver() {
+		List<HandlerExceptionResolver> exceptionResolvers = new ArrayList<>();
+		configureHandlerExceptionResolvers(exceptionResolvers);//web配置类从写添加
+		if (exceptionResolvers.isEmpty()) {  //没有就添加默认的
+			addDefaultHandlerExceptionResolvers(exceptionResolvers);
+		}
+		extendHandlerExceptionResolvers(exceptionResolvers);   //web配置类继续添加
+		HandlerExceptionResolverComposite composite = new           HandlerExceptionResolverComposite();
+		composite.setOrder(0);
+		composite.setExceptionResolvers(exceptionResolvers);
+		return composite;
+	}
+```
+
+WebMvcConfigurationSupport装配一个HandlerExceptionResolverComposite注入容器，以上代码配置的全在组合中，也可以单独往容器中配置与之并列存在。
+
+可以根据异常和处理器定制并返回一个modelAndView，或者返回null当异常为解决时
+
+- ResponseStatus
+- ExceptionHandler
+- Controller
+- ControllerAdvice
+
+
+
+
+### handlerMapping
+
+映射请求和处理器的关系，即根据请求返回一个包含处理器和拦截器的符合对象
+
+### ApplicationContextInitializer
+
+堆上下文进行
+
+### 
+
+
+
+
+
+## 疑问点
+
+- viewresolver先从web找再从root找
