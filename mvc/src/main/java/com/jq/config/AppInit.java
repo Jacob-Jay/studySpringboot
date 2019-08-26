@@ -4,6 +4,7 @@ import com.jq.custom.filter.Myfilter2;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.FrameworkServlet;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
@@ -50,6 +51,11 @@ public class AppInit extends AbstractAnnotationConfigDispatcherServletInitialize
     @Override
     protected void customizeRegistration(ServletRegistration.Dynamic registration) {
         super.customizeRegistration(registration);
+
+        //servlet原生文件上传
+       /* MultipartConfigElement configElement = new MultipartConfigElement("D:\\test",
+                1024*1000,1024*1000,1024*10);
+        registration.setMultipartConfig(configElement);*/
     }
 
 /* @Override
@@ -62,8 +68,10 @@ public class AppInit extends AbstractAnnotationConfigDispatcherServletInitialize
 
     @Override
     protected Filter[] getServletFilters() {
-//        return new Filter[]{new Myfilter2()};
-        return  null;
+        CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter("utf-8",true);
+
+        Filter[] filters =  new Filter[]{encodingFilter};
+        return  filters;
     }
 
 

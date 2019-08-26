@@ -1,28 +1,48 @@
 package com.jq.config;
 
+import com.jq.controller.AnnoController;
+import com.jq.custom.ResponseBodyEncoding;
 import com.jq.custom.interceptor.Myinterceptor1;
 import com.jq.custom.view.resolver.ExcelViewResolver;
 import com.jq.custom.view.resolver.JsonViewResolver;
 import com.jq.custom.view.resolver.PdfViewResolver;
 import com.jq.custom.view.resolver.XmlViewResolver;
 import com.jq.dao.ViewResolverBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.BufferedImageHttpMessageConverter;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.view.ContentNegotiatingViewResolver;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import org.springframework.web.util.UrlPathHelper;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +54,7 @@ import java.util.List;
 @EnableWebMvc
 @Configuration
 @ComponentScan("com.jq.controller")
+@Import(ResponseBodyEncoding.class)
 public class Webconfig implements WebMvcConfigurer{
 
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -139,5 +160,66 @@ public class Webconfig implements WebMvcConfigurer{
     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
         /*configurer.ignoreAcceptHeader(true).defaultContentType(
                 MediaType.TEXT_HTML);*/
+    }
+
+    @Bean
+    public MultipartResolver multipartResolver() {
+        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
+        try {
+            Resource resource = new FileUrlResource("D:\\test");
+            commonsMultipartResolver.setUploadTempDir(resource);
+            commonsMultipartResolver.setMaxUploadSize(1024*1024*5);
+            commonsMultipartResolver.setMaxUploadSizePerFile(1024*1024);
+            commonsMultipartResolver.setMaxInMemorySize(1024*3);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return commonsMultipartResolver;
+       /* MultipartResolver standardServletMultipartResolver = new StandardServletMultipartResolver();
+
+        return standardServletMultipartResolver;*/
+
+    }
+
+    @Autowired
+    public void add(RequestMappingHandlerMapping mapping, AnnoController controller) throws NoSuchMethodException {
+        RequestMappingInfo info = RequestMappingInfo.paths("/annotation/config").params("name=jq")
+                .methods(RequestMethod.GET).build();
+        Method byConfig = AnnoController.class.getMethod("byConfig");
+        mapping.registerMapping(info,controller,byConfig);
+    }
+
+
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        UrlPathHelper urlPathHelper = new UrlPathHelper();
+        urlPathHelper.setRemoveSemicolonContent(false);
+        configurer.setUrlPathHelper(urlPathHelper);
+    }
+
+
+    @Override
+    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        System.out.println("sdsd");
+
+        for (HttpMessageConverter<?> messageConverter : converters) {
+                if (messageConverter instanceof StringHttpMessageConverter) {
+                    List<MediaType> mediaTypes = new ArrayList<>();
+                    mediaTypes.add(MediaType.APPLICATION_JSON_UTF8);
+                    mediaTypes.add(MediaType.APPLICATION_PROBLEM_JSON_UTF8);
+                    ((StringHttpMessageConverter) messageConverter).setSupportedMediaTypes(mediaTypes);
+                }
+        }
+
+    }
+
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+       // converters.add(new BufferedImageHttpMessageConverter());
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
     }
 }
