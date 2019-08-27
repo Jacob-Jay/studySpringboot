@@ -360,6 +360,8 @@ WebMvcConfigurationSupport装配一个HandlerExceptionResolverComposite注入容
 
 映射请求和处理器的关系，即根据请求返回一个包含处理器和拦截器的符合对象
 
+![1566867278903](/handlerMapping)
+
 
 
 #### requestMapping
