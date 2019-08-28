@@ -362,7 +362,7 @@ WebMvcConfigurationSupport装配一个HandlerExceptionResolverComposite注入容
 
 ![1566867278903](/handlerMapping)
 
-
+![1566987796534](/requestHandlerMapping)
 
 #### requestMapping
 
@@ -436,7 +436,7 @@ WebMvcConfigurationSupport装配一个HandlerExceptionResolverComposite注入容
 
 9. SessionAttributes
 
-  - 第一次创建之后放入session以备使用，在方法处理完成后才放入。可以使用SessionStatus.setComplete()清除
+  - model中第一次创建之后放入session以备使用，在方法处理完成后才放入。可以使用SessionStatus.setComplete()清除
 
 10. sessionAttribute   获取session总的属性
 
@@ -464,6 +464,12 @@ WebMvcConfigurationSupport装配一个HandlerExceptionResolverComposite注入容
 #### controllerAdvice
 
 ​	用于全局定义@sessionAttributes  @modelAttribute @initBInder @exceptionHandlers等适用于所有controller可以通过属性进行窄化
+
+### HandlerAdaptor
+
+Controller
+
+HttpRequestHandler
 
 ### ApplicationContextInitializer
 

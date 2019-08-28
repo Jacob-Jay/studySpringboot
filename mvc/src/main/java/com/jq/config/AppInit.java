@@ -1,11 +1,7 @@
 package com.jq.config;
 
-import com.jq.custom.filter.Myfilter2;
-import org.springframework.util.Assert;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
-import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.FrameworkServlet;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -39,6 +35,7 @@ public class AppInit extends AbstractAnnotationConfigDispatcherServletInitialize
         servletContext.setInitParameter("jq", "sdsd");
         servletContext.setInitParameter("jq2", "sdsd");
 
+//        servletContext.setAttribute();
         ServletRegistration.Dynamic dynamic = servletContext.addServlet("tes", new HttpServlet() {
             @Override
             public void service(ServletRequest req, ServletResponse res) throws ServletException, IOException {
