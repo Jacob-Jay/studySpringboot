@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 @ResponseBody
 @RequestMapping("annotation")
-public class AnnoController {
+public class AnnoBontroller {
 
 
     //标注返回状态码

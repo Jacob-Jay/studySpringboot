@@ -364,6 +364,8 @@ WebMvcConfigurationSupport装配一个HandlerExceptionResolverComposite注入容
 
 ![1566987796534](/requestHandlerMapping)
 
+org.springframework.web.servlet.handler.AbstractHandlerMethodMapping#initHandlerMethods
+
 #### requestMapping
 
 - 使用正则
@@ -484,3 +486,4 @@ HttpRequestHandler
 ## 疑问点
 
 - viewresolver先从web找再从root找
+- 内容协商ContentNegotiationConfigurer
