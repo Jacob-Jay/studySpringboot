@@ -469,9 +469,16 @@ org.springframework.web.servlet.handler.AbstractHandlerMethodMapping#initHandler
 
 ### HandlerAdaptor
 
-Controller
+![1567129927133](/handlerAdaptor1)
 
-HttpRequestHandler
+![1567129979106](/handleradaptor2)
+
+#### 知识点
+
+1. convert
+2. webbindInitialization
+3. HandlerMethodArgumentResolver(参数解析器)
+4. HandlerMethodReturnValueHandler
 
 ### ApplicationContextInitializer
 
