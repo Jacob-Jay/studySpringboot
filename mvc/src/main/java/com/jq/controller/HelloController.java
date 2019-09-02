@@ -1,8 +1,8 @@
 package com.jq.controller;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.servlet.Servlet;
@@ -16,11 +16,19 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Controller
 @RequestMapping("hello")
+@SessionAttributes("name")
 public class HelloController {
+
+
+    @ModelAttribute("name")
+    public String getName() {
+        return "jq";
+    }
 
     @ResponseBody
     @RequestMapping()
-    public String hello(HttpServletRequest request) {
+    public String hello(HttpServletRequest request, Model model, @SessionAttribute(name = "name",required = false)String name,@ModelAttribute("name")String name2) {
+        model.addAttribute("name", "sadasdasd");
         return "hello";
     }
 }

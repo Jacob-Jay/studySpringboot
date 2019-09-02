@@ -3,6 +3,8 @@ package com.jq.config;
 import com.jq.controller.AnnoController;
 import com.jq.custom.ResponseBodyEncoding;
 import com.jq.custom.interceptor.Myinterceptor1;
+import com.jq.custom.oWNHandlerAdaptor;
+import com.jq.custom.view.OwnHanlderMapping;
 import com.jq.custom.view.resolver.ExcelViewResolver;
 import com.jq.custom.view.resolver.JsonViewResolver;
 import com.jq.custom.view.resolver.PdfViewResolver;
@@ -23,7 +25,9 @@ import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.HandlerAdapter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
@@ -219,6 +223,19 @@ public class Webconfig implements WebMvcConfigurer{
     }
 
 
+
+    //测试自己写的handlerMapping和adaptor
+
+    @Bean
+    public HandlerMapping handlerMapping() {
+        return new OwnHanlderMapping();
+    }
+
+    @Bean
+    public HandlerAdapter handlerAdapter() {
+        return new oWNHandlerAdaptor();
+    }
+    ////////
 
 
 }

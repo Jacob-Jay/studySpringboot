@@ -15,7 +15,7 @@ public class AdviceController {
 
     @InitBinder
     public void init(WebDataBinder dataBinder) {
-
+        System.out.println("");
     }
 
     @ExceptionHandler
